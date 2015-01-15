@@ -1,92 +1,134 @@
+%global git_revision 63c81f0
+%global checkout git.%{git_revision}
+
 Name: libabigail
-Version: 1.0.0
-Release: 1%{?dist}
-Summary: ABI analysis tool
+Version: 1.0
+Release: 0.1.%{checkout}%{?dist}
+Summary: Set of ABI analysis tools
 
 License: LGPLv3+
 URL: https://sourceware.org/libabigail/
-# The source for this package was pulled from upstream's vcs.  Use the
-# following commands to generate the tarball:
-#  git clone git://sourceware.org/git/libabigail.git
-#  cd libabigail && autoreconf -i && ./configure && make dist
+# This tarball was constructed from pulling the source code of
+# libabigail from its Git repository by doing:
+#    git clone git://sourceware.org/git/libabigail.git %%{name}-%%{version}
+#    pushd libabigail-1.0
+#    git checkout %%{git_revision}
+#    popd
+#    tar -cvzf %%{name}-%%{version}.tar.gz %%{name}-%%{version}
 Source0: %{name}-%{version}.tar.gz
 
-BuildRequires: libtool, elfutils-devel, libxml2-devel, doxygen, python-sphinx
+BuildRequires: libtool
+BuildRequires: elfutils-devel
+BuildRequires: libxml2-devel
+BuildRequires: doxygen
+BuildRequires: python-sphinx
+BuildRequires: gzip
+BuildRequires: texinfo
+
 Requires: elfutils
 
+
 %description
-Libabigail aims at providing a C++ library for constructing, manipulating,
-serializing and de-serializing ABI-relevant artifacts. The set of artifacts that
-we are interested in is made of constructions like types, variables, functions 
-and declarations of a given library or program.For a given program or library,
-this set of constructions is called an ABI corpus. Provides library to
-manipulate ABI corpora, compare them, provides detailed information about their 
-differences and help build tools to infer interesting conclusions about these
-difference.
+The libabigail package comprises four command line utilities: abidiff,
+abicompat, abidw and abilint.  The abidiff command line tool compares
+the ABI of two ELF shared libraries and emits meaningful textual
+reports about changes impacting exported functions, variables and
+their types.  abicompat checks if a subsequent version of a shared
+library is still compatible with an applicatipon that is linked
+against it.  abidw emits an XML representation of the ABI of a given
+ELF shared library. abilint checks that a given XML representation of
+the ABI of a shared library is correct.
+
+Install libabigail if you need to compare the ABI of ELF shared
+libraries.
 
 %package -n libabigail-devel
-Summary: Development package
+Summary: Shared library and header files to write ABI analysis tools
 Provides: libabigail-devel = %{version}-%{release}
-Requires: %{name} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description -n libabigail-devel
-Development package of libabigail
+This package contains a shared library and the associated header files
+that are necessary to develop applications that use the C++ Libabigail
+library.  The library provides facilities to analyze and compare
+application binary interfaces of shared libraries in the ELF format.
 
 
-%package -n libabigail-man
-Summary: Man page of libabigail tools
-Provides: libabigail-man = %{version}-%{release}
+%package -n libabigail-doc
+Summary: Man pages, texinfo files and html manuals of libabigail
+Provides: libabigail-doc = %{version}-%{release}
 Requires: %{name} = %{version}-%{release}
 
-%description -n libabigail-man
-Man page for tools like abidiff, abidw, abilint provided by libabigail
+%description -n libabigail-doc
+This package contains documentation for the libabigail tools in the
+form of man pages, texinfo documentation and API documentation in html
+format.
 
 %prep
 %setup -q
 
-
 %build
 autoreconf -i
-%configure
+%configure --disable-zip-archive
 make %{?_smp_mflags}
 pushd doc
 make html-doc
 pushd manuals
 make html-doc
 make man
+make info
 popd
 popd
 
 %check
 make check
+if [ $1 -eq 0 ]; then
+  cat tests/test-suite.log
+fi
 
 %install
-make install DESTDIR=%{buildroot}
+%make_install
+
+# Install man and texinfo files as they are not installed by the
+# default 'install' target of the makefile.
+make -C doc/manuals install-man-and-info-doc DESTDIR=%{buildroot}
 
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root,-)
-%{_bindir}/*
-%{_libdir}/libabigail.so.*
-%{_datadir}/aclocal
-%doc doc/manuals/html
+%{_bindir}/abicompat
+%{_bindir}/abidiff
+%{_bindir}/abidw
+%{_bindir}/abilint
+%{_libdir}/libabigail.so.0
+%{_libdir}/libabigail.so.0.0.0
 
 %files -n libabigail-devel
-%defattr(-,root,root,-)
 %{_libdir}/libabigail.so
-%{_libdir}/libabigail.a
-%{_libdir}/libabigail.la
+%exclude %{_libdir}/libabigail.a
+%exclude %{_libdir}/libabigail.la
 %{_libdir}/pkgconfig/libabigail.pc
 %{_includedir}/*
-%doc doc/api/
+%{_datadir}/aclocal/abigail.m4
 
-%files -n libabigail-man
-%defattr(-,root,root,-)
+%files -n libabigail-doc
+%doc doc/manuals/html/*
 %{_mandir}/man7/*
+%{_infodir}/abigail.info.gz
+
+%post -n libabigail-doc
+/sbin/ldconfig
+/usr/sbin/install-info %{_infodir}/abigail.info.gz %{_infodir}/dir 2>/dev/null || :
+
+%postun -n libabigail-doc
+/sbin/ldconfig
+if [ $1 -eq 0 ]; then
+  /usr/sbin/install-info --delete %{_infodir}/abigail.info.gz %{_infodir}/dir 2>/dev/null || :
+fi
 
 %changelog
-* Wed Jan 14 2015 Sinny Kumari <ksinny@gmail.com> - 1.0.0-1
-- Initial build of libabigail
+* Thu Jan 15 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.1.git.63c81f0
+- Initial build of the libabigail package using source code from git
+  revision 63c81f0.
