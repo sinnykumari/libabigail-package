@@ -1,5 +1,6 @@
+%global date 20150114
 %global git_revision 63c81f0
-%global checkout git.%{git_revision}
+%global checkout git.%{date}git%{git_revision}
 
 Name: libabigail
 Version: 1.0
@@ -22,11 +23,7 @@ BuildRequires: elfutils-devel
 BuildRequires: libxml2-devel
 BuildRequires: doxygen
 BuildRequires: python-sphinx
-BuildRequires: gzip
 BuildRequires: texinfo
-
-Requires: elfutils
-
 
 %description
 The libabigail package comprises four command line utilities: abidiff,
@@ -44,7 +41,6 @@ libraries.
 
 %package -n libabigail-devel
 Summary: Shared library and header files to write ABI analysis tools
-Provides: libabigail-devel = %{version}-%{release}
 Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description -n libabigail-devel
@@ -56,8 +52,6 @@ application binary interfaces of shared libraries in the ELF format.
 
 %package -n libabigail-doc
 Summary: Man pages, texinfo files and html manuals of libabigail
-Provides: libabigail-doc = %{version}-%{release}
-Requires: %{name} = %{version}-%{release}
 
 %description -n libabigail-doc
 This package contains documentation for the libabigail tools in the
@@ -69,7 +63,7 @@ format.
 
 %build
 autoreconf -i
-%configure --disable-zip-archive
+%configure --disable-silent-rules --disable-zip-archive
 make %{?_smp_mflags}
 pushd doc
 make html-doc
@@ -80,18 +74,18 @@ make info
 popd
 popd
 
-%check
-make check
-if [ $1 -eq 0 ]; then
-  cat tests/test-suite.log
-fi
-
 %install
 %make_install
 
 # Install man and texinfo files as they are not installed by the
 # default 'install' target of the makefile.
 make -C doc/manuals install-man-and-info-doc DESTDIR=%{buildroot}
+
+%check
+make check
+if [ $1 -eq 0 ]; then
+  cat tests/test-suite.log
+fi
 
 %post -p /sbin/ldconfig
 
@@ -104,6 +98,7 @@ make -C doc/manuals install-man-and-info-doc DESTDIR=%{buildroot}
 %{_bindir}/abilint
 %{_libdir}/libabigail.so.0
 %{_libdir}/libabigail.so.0.0.0
+%doc AUTHORS ChangeLog COPYING-LGPLV3
 
 %files -n libabigail-devel
 %{_libdir}/libabigail.so
@@ -114,21 +109,20 @@ make -C doc/manuals install-man-and-info-doc DESTDIR=%{buildroot}
 %{_datadir}/aclocal/abigail.m4
 
 %files -n libabigail-doc
+%doc COPYING-LGPLV3
 %doc doc/manuals/html/*
 %{_mandir}/man7/*
-%{_infodir}/abigail.info.gz
+%{_infodir}/abigail.info*
 
 %post -n libabigail-doc
-/sbin/ldconfig
-/usr/sbin/install-info %{_infodir}/abigail.info.gz %{_infodir}/dir 2>/dev/null || :
+/usr/sbin/install-info %{_infodir}/abigail.info* %{_infodir}/dir 2>/dev/null || :
 
 %postun -n libabigail-doc
-/sbin/ldconfig
 if [ $1 -eq 0 ]; then
-  /usr/sbin/install-info --delete %{_infodir}/abigail.info.gz %{_infodir}/dir 2>/dev/null || :
+  /usr/sbin/install-info --delete %{_infodir}/abigail.info* %{_infodir}/dir 2>/dev/null || :
 fi
 
 %changelog
-* Thu Jan 15 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.1.git.63c81f0
+* Sun Jan 18 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.1.git.63c81f0
 - Initial build of the libabigail package using source code from git
   revision 63c81f0.
