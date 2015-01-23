@@ -1,21 +1,19 @@
 %global date 20150114
 %global git_revision 63c81f0
-%global checkout git.%{date}git%{git_revision}
+%global checkout %{date}git%{git_revision}
 
 Name: libabigail
 Version: 1.0
-Release: 0.1.%{checkout}%{?dist}
+Release: 0.2.%{checkout}%{?dist}
 Summary: Set of ABI analysis tools
 
 License: LGPLv3+
 URL: https://sourceware.org/libabigail/
 # This tarball was constructed from pulling the source code of
 # libabigail from its Git repository by doing:
-#    git clone git://sourceware.org/git/libabigail.git %%{name}-%%{version}
-#    pushd libabigail-1.0
-#    git checkout %%{git_revision}
-#    popd
-#    tar -cvzf %%{name}-%%{version}.tar.gz %%{name}-%%{version}
+#    git clone git://sourceware.org/git/libabigail.git
+#    pushd libabigail
+#    git archive --prefix %%{name}-%%{version}/ -o %%{name}-%%{version}.tar.gz %%{git_revision} 
 Source0: %{name}-%{version}.tar.gz
 
 BuildRequires: libtool
@@ -24,6 +22,7 @@ BuildRequires: libxml2-devel
 BuildRequires: doxygen
 BuildRequires: python-sphinx
 BuildRequires: texinfo
+BuildRequires: dos2unix
 
 %description
 The libabigail package comprises four command line utilities: abidiff,
@@ -80,6 +79,7 @@ popd
 # Install man and texinfo files as they are not installed by the
 # default 'install' target of the makefile.
 make -C doc/manuals install-man-and-info-doc DESTDIR=%{buildroot}
+dos2unix doc/manuals/html/_static/jquery.js
 
 %check
 make check
@@ -98,7 +98,8 @@ fi
 %{_bindir}/abilint
 %{_libdir}/libabigail.so.0
 %{_libdir}/libabigail.so.0.0.0
-%doc AUTHORS ChangeLog COPYING-LGPLV3
+%doc AUTHORS ChangeLog
+%license COPYING-LGPLV3
 
 %files -n libabigail-devel
 %{_libdir}/libabigail.so
@@ -109,7 +110,7 @@ fi
 %{_datadir}/aclocal/abigail.m4
 
 %files -n libabigail-doc
-%doc COPYING-LGPLV3
+%license COPYING-LGPLV3
 %doc doc/manuals/html/*
 %{_mandir}/man7/*
 %{_infodir}/abigail.info*
@@ -117,12 +118,12 @@ fi
 %post -n libabigail-doc
 /usr/sbin/install-info %{_infodir}/abigail.info* %{_infodir}/dir 2>/dev/null || :
 
-%postun -n libabigail-doc
+%preun -n libabigail-doc
 if [ $1 -eq 0 ]; then
   /usr/sbin/install-info --delete %{_infodir}/abigail.info* %{_infodir}/dir 2>/dev/null || :
 fi
 
 %changelog
-* Sun Jan 18 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.1.git.63c81f0
+* Fri Jan 23 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.2.20150114git63c81f0
 - Initial build of the libabigail package using source code from git
   revision 63c81f0.
