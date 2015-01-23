@@ -20,7 +20,7 @@ BuildRequires: libtool
 BuildRequires: elfutils-devel
 BuildRequires: libxml2-devel
 BuildRequires: doxygen
-BuildRequires: python-sphinx
+BuildRequires: python-sphinx python-sphinx-latex
 BuildRequires: texinfo
 BuildRequires: dos2unix
 
