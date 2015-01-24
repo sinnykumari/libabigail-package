@@ -4,7 +4,7 @@
 
 Name: libabigail
 Version: 1.0
-Release: 0.2.%{checkout}%{?dist}
+Release: 0.3.%{checkout}%{?dist}
 Summary: Set of ABI analysis tools
 
 License: LGPLv3+
@@ -38,21 +38,23 @@ the ABI of a shared library is correct.
 Install libabigail if you need to compare the ABI of ELF shared
 libraries.
 
-%package -n libabigail-devel
+%package devel
 Summary: Shared library and header files to write ABI analysis tools
 Requires: %{name}%{?_isa} = %{version}-%{release}
 
-%description -n libabigail-devel
+%description devel
 This package contains a shared library and the associated header files
 that are necessary to develop applications that use the C++ Libabigail
 library.  The library provides facilities to analyze and compare
 application binary interfaces of shared libraries in the ELF format.
 
 
-%package -n libabigail-doc
+%package doc
 Summary: Man pages, texinfo files and html manuals of libabigail
+Requires(post): info
+Requires(preun): info
 
-%description -n libabigail-doc
+%description doc
 This package contains documentation for the libabigail tools in the
 form of man pages, texinfo documentation and API documentation in html
 format.
@@ -101,7 +103,7 @@ fi
 %doc AUTHORS ChangeLog
 %license COPYING-LGPLV3
 
-%files -n libabigail-devel
+%files devel
 %{_libdir}/libabigail.so
 %exclude %{_libdir}/libabigail.a
 %exclude %{_libdir}/libabigail.la
@@ -109,21 +111,30 @@ fi
 %{_includedir}/*
 %{_datadir}/aclocal/abigail.m4
 
-%files -n libabigail-doc
+%files doc
 %license COPYING-LGPLV3
 %doc doc/manuals/html/*
 %{_mandir}/man7/*
 %{_infodir}/abigail.info*
 
-%post -n libabigail-doc
+%post doc
 /usr/sbin/install-info %{_infodir}/abigail.info* %{_infodir}/dir 2>/dev/null || :
 
-%preun -n libabigail-doc
+%preun doc
 if [ $1 -eq 0 ]; then
   /usr/sbin/install-info --delete %{_infodir}/abigail.info* %{_infodir}/dir 2>/dev/null || :
 fi
 
 %changelog
+* Sat Jan 24 2015 SInny Kumari <ksinny@gmail.com> - 1.0-0.3.20150114git63c81f0
+- Specify only sub-packgae name instead of giving full package name
+- Add info as post and preun Requires for doc sub-package
+
 * Fri Jan 23 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.2.20150114git63c81f0
+- Add python-sphinx-latex as BuildRequires
+- Use license instead of doc macro for license file installation
+- Update checkout value
+
+* Sun Jan 18 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.1.git.63c81f0
 - Initial build of the libabigail package using source code from git
   revision 63c81f0.
