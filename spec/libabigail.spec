@@ -119,7 +119,7 @@ fi
 %{_datadir}/aclocal/abigail.m4
 
 %files doc
-%license COPYING  COPYING-LGPLV3 COPYING-GPLV3
+%license COPYING COPYING-LGPLV3 COPYING-GPLV3
 %doc doc/manuals/html/*
 %{_mandir}/man7/*
 %{_infodir}/abigail.info*
