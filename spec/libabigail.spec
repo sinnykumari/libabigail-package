@@ -1,5 +1,5 @@
-%global date 20150420
-%global git_revision 3d8eccf
+%global date 20150422
+%global git_revision a9582d8
 %global checkout %{date}git%{git_revision}
 
 Name: libabigail
@@ -125,10 +125,10 @@ fi
 %{_infodir}/abigail.info*
 
 %changelog
-* Wed Apr 22 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.1.20150420git3d8eccf
+* Wed Apr 22 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.1.20150420gita9582d8
 - Add COPYING-GPLV3 license file as well
 - Remove python-sphinx-latex from BuildRequires
-- Package latest source tar with git revision 3d8eccf
+- Package latest source tar with git revision a9582d8
 
 * Sat Jan 24 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.3.20150114git63c81f0
 - Specify only sub-packgae name instead of giving full package name
