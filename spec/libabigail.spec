@@ -1,10 +1,10 @@
-%global date 20150114
-%global git_revision 63c81f0
+%global date 20150420
+%global git_revision 3d8eccf
 %global checkout %{date}git%{git_revision}
 
 Name: libabigail
 Version: 1.0
-Release: 0.3.%{checkout}%{?dist}
+Release: 0.1.%{checkout}%{?dist}
 Summary: Set of ABI analysis tools
 
 License: LGPLv3+
@@ -20,7 +20,7 @@ BuildRequires: libtool
 BuildRequires: elfutils-devel
 BuildRequires: libxml2-devel
 BuildRequires: doxygen
-BuildRequires: python-sphinx python-sphinx-latex
+BuildRequires: python-sphinx
 BuildRequires: texinfo
 BuildRequires: dos2unix
 
@@ -30,7 +30,7 @@ abicompat, abidw and abilint.  The abidiff command line tool compares
 the ABI of two ELF shared libraries and emits meaningful textual
 reports about changes impacting exported functions, variables and
 their types.  abicompat checks if a subsequent version of a shared
-library is still compatible with an applicatipon that is linked
+library is still compatible with an application that is linked
 against it.  abidw emits an XML representation of the ABI of a given
 ELF shared library. abilint checks that a given XML representation of
 the ABI of a shared library is correct.
@@ -64,7 +64,7 @@ format.
 
 %build
 autoreconf -i
-%configure --disable-silent-rules --disable-zip-archive
+%configure --disable-silent-rules --disable-zip-archive --disable-static 
 make %{?_smp_mflags}
 pushd doc
 make html-doc
@@ -77,6 +77,7 @@ popd
 
 %install
 %make_install
+find %{buildroot} -name '*.la' -exec rm -f {} ';'
 
 # Install man and texinfo files as they are not installed by the
 # default 'install' target of the makefile.
@@ -93,30 +94,6 @@ fi
 
 %postun -p /sbin/ldconfig
 
-%files
-%{_bindir}/abicompat
-%{_bindir}/abidiff
-%{_bindir}/abidw
-%{_bindir}/abilint
-%{_libdir}/libabigail.so.0
-%{_libdir}/libabigail.so.0.0.0
-%doc AUTHORS ChangeLog
-%license COPYING-LGPLV3
-
-%files devel
-%{_libdir}/libabigail.so
-%exclude %{_libdir}/libabigail.a
-%exclude %{_libdir}/libabigail.la
-%{_libdir}/pkgconfig/libabigail.pc
-%{_includedir}/*
-%{_datadir}/aclocal/abigail.m4
-
-%files doc
-%license COPYING-LGPLV3
-%doc doc/manuals/html/*
-%{_mandir}/man7/*
-%{_infodir}/abigail.info*
-
 %post doc
 /usr/sbin/install-info %{_infodir}/abigail.info* %{_infodir}/dir 2>/dev/null || :
 
@@ -125,8 +102,35 @@ if [ $1 -eq 0 ]; then
   /usr/sbin/install-info --delete %{_infodir}/abigail.info* %{_infodir}/dir 2>/dev/null || :
 fi
 
+%files
+%{_bindir}/abicompat
+%{_bindir}/abidiff
+%{_bindir}/abidw
+%{_bindir}/abilint
+%{_libdir}/libabigail.so.0
+%{_libdir}/libabigail.so.0.0.0
+%doc AUTHORS ChangeLog
+%license COPYING COPYING-LGPLV3 COPYING-GPLV3
+
+%files devel
+%{_libdir}/libabigail.so
+%{_libdir}/pkgconfig/libabigail.pc
+%{_includedir}/*
+%{_datadir}/aclocal/abigail.m4
+
+%files doc
+%license COPYING  COPYING-LGPLV3 COPYING-GPLV3
+%doc doc/manuals/html/*
+%{_mandir}/man7/*
+%{_infodir}/abigail.info*
+
 %changelog
-* Sat Jan 24 2015 SInny Kumari <ksinny@gmail.com> - 1.0-0.3.20150114git63c81f0
+* Wed Apr 22 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.1.20150420git3d8eccf
+- Add COPYING-GPLV3 license file as well
+- Remove python-sphinx-latex from BuildRequires
+- Package latest source tar with git revision 3d8eccf
+
+* Sat Jan 24 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.3.20150114git63c81f0
 - Specify only sub-packgae name instead of giving full package name
 - Add info as post and preun Requires for doc sub-package
 
