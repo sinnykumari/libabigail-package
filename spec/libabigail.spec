@@ -125,7 +125,7 @@ fi
 %{_infodir}/abigail.info*
 
 %changelog
-* Wed Apr 22 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.1.20150420gita9582d8
+* Wed Apr 22 2015 Sinny Kumari <ksinny@gmail.com> - 1.0-0.1.20150422gita9582d8
 - Add COPYING-GPLV3 license file as well
 - Remove python-sphinx-latex from BuildRequires
 - Package latest source tar with git revision a9582d8
